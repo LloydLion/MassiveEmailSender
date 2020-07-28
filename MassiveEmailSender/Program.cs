@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MassiveEmailSender
@@ -12,6 +13,7 @@ namespace MassiveEmailSender
 	class Program
 	{
 		public const string DefaultEmailContentFileName = "content.html";
+		public const int CountOfThreads = 4;
 
 
 		static void Main(string[] args)
@@ -19,42 +21,60 @@ namespace MassiveEmailSender
 			Config config = Config.LoadConfigFromFile(Config.DefaultConfigFileName);
 			config.SetAddressesFromTxtFile(Config.DefaultEmailsTxtFileName);
 
-			SendAll(config, File.ReadAllText(DefaultEmailContentFileName));
-
-			Console.WriteLine("Program work endded. Press any key to close");
-			Console.ReadKey();
-		}
-
-		static void SendAll(Config config, string text)
-		{
-			var sender = new SmtpClient(config.SmtpServerAddress)
+			MailMessage message = new MailMessage
 			{
-				EnableSsl = true,
-				UseDefaultCredentials = false,
-				Credentials = new NetworkCredential(config.SenderAdress.Address, config.SenderPassword)
+				IsBodyHtml = true,
+				Body = File.ReadAllText(DefaultEmailContentFileName),
+				Subject = ""
 			};
 
 
 
-			Console.WriteLine("Sending from " + config.SenderAdress.Address);
-			Console.WriteLine();
+			var threadsAdresses = new MailAddress[CountOfThreads][];
+			MailAddress[] tmp = 
+				new MailAddress[config.TargetAdresses.Length - config.TargetAdresses.Length % CountOfThreads];
+			MailAddress[] tmp2 = new MailAddress[config.TargetAdresses.Length % CountOfThreads];
 
-			for (int i = 0; i < config.TargetAdresses.Length; i++)
+			Array.Copy(config.TargetAdresses, tmp,+
+				config.TargetAdresses.Length - config.TargetAdresses.Length % CountOfThreads);
+
+			Array.Copy(config.TargetAdresses,
+				config.TargetAdresses.Length - config.TargetAdresses.Length % CountOfThreads,
+				tmp2, 0, config.TargetAdresses.Length % CountOfThreads);
+
+			ThreadHandler(config, message, tmp2);
+
+			var threadAddressesCount = tmp.Length / CountOfThreads;
+			for (int i = 0; i < CountOfThreads; i++)
 			{
-				var target = config.TargetAdresses[i];
-				var message = new MailMessage(config.SenderAdress, target)
-				{
-					Subject = " ",
-					IsBodyHtml = true,
-					Body = text
-				};
-
-				Console.Write("Sending to " + target.Address);
-				sender.Send(message);
-				Console.WriteLine(" ... OK!");
+				threadsAdresses[i] = new MailAddress[threadAddressesCount];
+				Array.Copy(tmp, threadAddressesCount * i, threadsAdresses[i], 0, threadAddressesCount);
 			}
 
-			Console.WriteLine(new string('-', 40));
+			Task[] tmp3 = new Task[CountOfThreads];
+			for (int j = 0; j < CountOfThreads; j++)
+			{
+				tmp3[j] = Task.Run(() => ThreadHandler(config, message, threadsAdresses[j]));
+			}
+
+			for (int h = 0; h < CountOfThreads; h++)
+			{
+				tmp3[h].Wait();
+			}
+
+			Console.WriteLine(new string('-', 30));
+			Console.WriteLine("Program work endded. Press any key to close");
+			Console.ReadKey();
+		}
+
+		static void ThreadHandler(Config config, MailMessage message, MailAddress[] addresses)
+		{
+			MailSender sender = new MailSender(config.SenderAdress, config.SenderPassword,
+				config.SmtpServerAddress);
+
+			sender.SendToAll(addresses, message);
+
+			Console.Write("[" + Thread.CurrentThread.ManagedThreadId + "]: " + "Work completed! Wait for all!");
 		}
 	}
 }
