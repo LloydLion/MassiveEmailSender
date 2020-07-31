@@ -26,7 +26,7 @@ namespace MassiveEmailSender
 			};
 		}
 
-		public void SendToAll(MailAddress[] addresses, MailMessage message)
+		public void SendToAll(MailAddress[] addresses, MailMessage message, string threadID)
 		{
 			message.From = from;
 
@@ -34,10 +34,21 @@ namespace MassiveEmailSender
 			{
 				message.To.Clear();
 				message.To.Add(addresses[i]);
+    
+				try
+				{
+					client.Send(message);
+				}
+				catch(Exception)
+				{
+					Console.WriteLine("[" + threadID + "]: " +
+						"Sending To " + addresses[i].Address + " ... FAILED!!");
 
-				client.Send(message);
+					Thread.Sleep(1000);
+					SendToAll(addresses, message, threadID);
+				}
 
-				Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "]: " +
+				Console.WriteLine("[" + threadID + "]: " +
 					"Sending To " + addresses[i].Address + " ... OK!" );
 			}
 		}

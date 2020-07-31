@@ -15,7 +15,7 @@ namespace MassiveEmailSender
 		public const string DefaultEmailsTxtFileName = "emails.txt";
 
 
-		public MailAddress SenderAdress { get; private set; }
+		public MailAddress SenderAddress { get; private set; }
 		public string SenderPassword { get; private set; }
 		public string SmtpServerAddress { get; private set; }
 		public MailAddress[] TargetAdresses { get; private set; }
@@ -30,7 +30,7 @@ namespace MassiveEmailSender
 		{
 			var model = JsonConvert.DeserializeObject<ParseModel>(value);
 
-			return new Config(new MailAddress(model.SenderAdress),
+			return new Config(new MailAddress(model.SenderAddress),
 				new MailAddress[0], model.SenderPassword, model.SmtpServerAddress);
 		}
 
@@ -47,7 +47,7 @@ namespace MassiveEmailSender
 
 		public Config(MailAddress sender, MailAddress[] target, string password, string smtpServerAddress)
 		{
-			SenderAdress = sender;
+			SenderAddress = sender;
 			TargetAdresses = target;
 			SenderPassword = password;
 			SmtpServerAddress = smtpServerAddress;
@@ -56,7 +56,7 @@ namespace MassiveEmailSender
 
 		private class ParseModel
 		{
-			public string SenderAdress { get; set; }
+			public string SenderAddress { get; set; }
 			public string SenderPassword { get; set; }
 			public string SmtpServerAddress { get; set; }
 		}

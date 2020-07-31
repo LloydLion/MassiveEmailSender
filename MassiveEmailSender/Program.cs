@@ -42,7 +42,7 @@ namespace MassiveEmailSender
 				config.TargetAdresses.Length - config.TargetAdresses.Length % CountOfThreads,
 				tmp2, 0, config.TargetAdresses.Length % CountOfThreads);
 
-			ThreadHandler(config, message, tmp2);
+			ThreadHandler(config, message, tmp2, "Main");
 
 			var threadAddressesCount = tmp.Length / CountOfThreads;
 			for (int i = 0; i < CountOfThreads; i++)
@@ -54,7 +54,8 @@ namespace MassiveEmailSender
 			Task[] tmp3 = new Task[CountOfThreads];
 			for (int j = 0; j < CountOfThreads; j++)
 			{
-				tmp3[j] = Task.Run(() => ThreadHandler(config, message, threadsAdresses[j]));
+				var jcache = j;
+				tmp3[j] = Task.Run(() => ThreadHandler(config, message, threadsAdresses[jcache], "Thread " + jcache));
 			}
 
 			for (int h = 0; h < CountOfThreads; h++)
@@ -67,14 +68,14 @@ namespace MassiveEmailSender
 			Console.ReadKey();
 		}
 
-		static void ThreadHandler(Config config, MailMessage message, MailAddress[] addresses)
+		static void ThreadHandler(Config config, MailMessage message, MailAddress[] addresses, string threadID)
 		{
-			MailSender sender = new MailSender(config.SenderAdress, config.SenderPassword,
+			MailSender sender = new MailSender(config.SenderAddress, config.SenderPassword,
 				config.SmtpServerAddress);
 
-			sender.SendToAll(addresses, message);
+			sender.SendToAll(addresses, message, threadID);
 
-			Console.Write("[" + Thread.CurrentThread.ManagedThreadId + "]: " + "Work completed! Wait for all!");
+			Console.WriteLine("[" + threadID + "]: " + "Work completed! Wait for all!");
 		}
 	}
 }
