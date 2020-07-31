@@ -34,11 +34,6 @@ namespace MassiveEmailSender
 				new MailAddress[0], model.SenderPassword, model.SmtpServerAddress);
 		}
 
-		/*public string ConvertToString()
-		{
-			return JsonConvert.SerializeObject(this);
-		}*/
-
 		public void SetAddressesFromTxtFile(string path)
 		{
 			TargetAdresses = File.ReadAllText(path).Replace("\r\n", "\u1234")

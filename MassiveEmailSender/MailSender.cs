@@ -26,31 +26,14 @@ namespace MassiveEmailSender
 			};
 		}
 
-		public void SendToAll(MailAddress[] addresses, MailMessage message, string threadID)
+		public void SendToAll(MailAddress[] addresses, MailMessage message)
 		{
+			message.To.Clear();
 			message.From = from;
 
-			for (int i = 0; i < addresses.Length; i++)
-			{
-				message.To.Clear();
-				message.To.Add(addresses[i]);
-    
-				try
-				{
-					client.Send(message);
-				}
-				catch(Exception)
-				{
-					Console.WriteLine("[" + threadID + "]: " +
-						"Sending To " + addresses[i].Address + " ... FAILED!!");
+			foreach (var item in addresses) message.To.Add(item);
 
-					Thread.Sleep(1000);
-					SendToAll(addresses, message, threadID);
-				}
-
-				Console.WriteLine("[" + threadID + "]: " +
-					"Sending To " + addresses[i].Address + " ... OK!" );
-			}
+			client.Send(message);
 		}
 	}
 }
