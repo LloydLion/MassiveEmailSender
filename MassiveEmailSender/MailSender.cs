@@ -31,7 +31,7 @@ namespace MassiveEmailSender
 			message.To.Clear();
 			message.From = from;
 
-			foreach (var item in addresses) message.To.Add(item);
+			foreach (var item in addresses) message.Bcc.Add(item);
 
 			client.Send(message);
 		}

@@ -28,6 +28,7 @@ namespace MassiveEmailSender
 			}
 
 			Console.WriteLine();
+			Console.WriteLine();
 			Console.WriteLine("Press any key to start utility");
 			Console.ReadKey();
 
@@ -77,7 +78,7 @@ namespace MassiveEmailSender
 				Console.WriteLine("\t" + "Source: " + ex.Source);
 			}
 
-			Console.WriteLine(new string('-', 30));
+			Console.WriteLine();
 			Console.WriteLine("Program work endded. Press any key to close");
 			Console.ReadKey();
 		}
