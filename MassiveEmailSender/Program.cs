@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MassiveEmailSender.Language;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,23 +16,24 @@ namespace MassiveEmailSender
 	class Program
 	{
 		public const string DefaultEmailContentFileName = "content.html";
-		public const int CountOfThreads = 4;
-
+		private static LocaleDictionary locale;
 
 		static void Main()
 		{
 			try
 			{
-				Console.WriteLine("Massive Email Sender Utility");
+				locale = new LocaleDictionary(CultureInfo.CurrentUICulture);
 
-				Console.Write("Are you want reset setting? [Yes/No] ");
+				Console.WriteLine(locale.GetString("Massive Email Sender Utility"));
+
+				Console.Write(locale.GetString("Are you want reset setting? [Yes/No] "));
 				string input = Console.ReadLine();
 				Console.WriteLine();
 
-				if (input == "Yes") ResetSettings();
+				if (input == locale.GetString("Yes")) ResetSettings();
 
 
-				Console.Write("Check setting before start program ");
+				Console.Write(locale.GetString("Check setting before program start "));
 
 				for (int i = 0; i < 6; i++)
 				{
@@ -40,32 +43,31 @@ namespace MassiveEmailSender
 
 				Console.WriteLine();
 				Console.WriteLine();
-				Console.WriteLine("Press any key to start utility");
+				Console.WriteLine(locale.GetString("Press any key to start utility"));
 				Console.ReadKey();
 
 				Console.WriteLine();
-				Console.WriteLine("Work started");
 
-				Console.Write("Reading config ... ");
+				Console.Write(locale.GetString("Reading config ... "));
 				Config config = Config.LoadConfigFromFile(Config.DefaultConfigFileName);
 				config.SetAddressesFromTxtFile(Config.DefaultEmailsTxtFileName);
-				Console.WriteLine("OK!");
+				Console.WriteLine(locale.GetString("OK!"));
 
-				Console.Write("Reading message ... ");
+				Console.Write(locale.GetString("Reading message ... "));
 				MailMessage message = new MailMessage
 				{
 					IsBodyHtml = true,
 					Body = File.ReadAllText(DefaultEmailContentFileName),
 					Subject = ""
 				};
-				Console.WriteLine("OK!");
+				Console.WriteLine(locale.GetString("OK!"));
 
-				Console.Write("Creating client ... ");
+				Console.Write(locale.GetString("Creating client ... "));
 				MailSender sender = new MailSender(config.SenderAddress, config.SenderPassword,
 					config.SmtpServerAddress);
-				Console.WriteLine("OK!");
+				Console.WriteLine(locale.GetString("OK!"));
 
-				Console.Write("Sending emails ");
+				Console.Write(locale.GetString("Sending emails "));
 
 
 				var task =
@@ -74,47 +76,47 @@ namespace MassiveEmailSender
 				for (int i = 0; !task.IsCompleted; i++)
 				{
 					Thread.Sleep(1000);
-					Console.Write(".");
+					Console.Write('.');
 				}
 
-				Console.WriteLine(" OK!");
+				Console.WriteLine(" " + locale.GetString("OK!"));
 			}
 			catch(Exception ex)
 			{
 				Console.WriteLine("Unhandled Exception: ");
 				Console.WriteLine("\tMessage: " + ex.Message);
 				Console.WriteLine("\tStackTrace: " + ex.StackTrace);
-				Console.WriteLine("\t" + "Source: " + ex.Source);
+				Console.WriteLine("\tSource: " + ex.Source);
 			}
 
 			Console.WriteLine();
-			Console.WriteLine("Program work endded. Press any key to close");
+			Console.WriteLine(locale.GetString("Program work endded. Press any key to close"));
 			Console.ReadKey();
 		}
 
 		private static void ResetSettings()
 		{
-			Console.Write("Reseting settings ... ");
+			Console.Write(locale.GetString("Reseting settings ... "));
 			File.WriteAllText(Config.DefaultConfigFileName, "");
 			File.WriteAllText(Config.DefaultEmailsTxtFileName, "");
 			File.WriteAllText(DefaultEmailContentFileName, "");
-			Console.WriteLine("OK!");
+			Console.WriteLine(locale.GetString("OK!"));
 
 			Console.WriteLine();
-			Console.WriteLine("Enter your email address");
+			Console.WriteLine(locale.GetString("Enter your email address"));
 			var tmp1 = Console.ReadLine();
 			Console.WriteLine();
-			Console.WriteLine("Enter email password");
+			Console.WriteLine(locale.GetString("Enter password from email"));
 			var tmp2 = Console.ReadLine();
 			Console.WriteLine();
-			Console.WriteLine("Enter email smtp server address");
+			Console.WriteLine(locale.GetString("Enter email smtp server address"));
 			var tmp3 = Console.ReadLine();
 			Console.WriteLine();
 
-			Console.Write("Writting to file ... ");
+			Console.Write(locale.GetString("Writting to file ... "));
 			File.WriteAllText(Config.DefaultConfigFileName, 
 				new Config(new MailAddress(tmp1), new MailAddress[0], tmp2, tmp3).ExportConfig().json);
-			Console.WriteLine("OK!");
+			Console.WriteLine(locale.GetString("OK!"));
 
 			Process notepad = new Process()
 			{
@@ -126,15 +128,15 @@ namespace MassiveEmailSender
 			};
 
 			Console.WriteLine();
-			Console.WriteLine("Write all target emails to file throught line break");
+			Console.WriteLine(locale.GetString("Write all target emails to file throught line break"));
 
-			Console.Write("Opening ");
+			Console.Write(locale.GetString("Opening "));
 			for (int i = 0; i < 5; i++)
 			{
 				Thread.Sleep(500);
 				Console.Write('.');
 			}
-			Console.WriteLine(" Open!");
+			Console.WriteLine(locale.GetString(" Open!"));
 
 			notepad.StartInfo.Arguments = Config.DefaultEmailsTxtFileName;
 
@@ -142,14 +144,14 @@ namespace MassiveEmailSender
 			notepad.WaitForExit();
 
 			Console.WriteLine();
-			Console.WriteLine("Write message to html file");
-			Console.Write("Opening ");
+			Console.WriteLine(locale.GetString("Write message to html file"));
+			Console.Write(locale.GetString("Opening "));
 			for (int i = 0; i < 5; i++)
 			{
 				Thread.Sleep(500);
 				Console.Write('.');
 			}
-			Console.WriteLine(" Open!");
+			Console.WriteLine(locale.GetString(" Open!"));
 
 			notepad.StartInfo.Arguments = DefaultEmailContentFileName;
 
@@ -157,8 +159,8 @@ namespace MassiveEmailSender
 			notepad.WaitForExit();
 
 			Console.WriteLine();
-			Console.WriteLine("Configuration complite!");
-			Console.WriteLine("Press any key to continue");
+			Console.WriteLine(locale.GetString("Configuration complite!"));
+			Console.WriteLine(locale.GetString("Press any key to continue"));
 			Console.ReadLine();
 			Console.WriteLine();
 
