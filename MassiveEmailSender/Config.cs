@@ -40,6 +40,19 @@ namespace MassiveEmailSender
 				.Split('\u1234').Select((s) => new MailAddress(s)).ToArray();
 		}
 
+		public (string json, string txt) ExportConfig()
+		{
+			var pm = new ParseModel
+			{
+				SenderAddress = SenderAddress.Address,
+				SenderPassword = SenderPassword,
+				SmtpServerAddress = SmtpServerAddress
+			};
+
+			return (JsonConvert.SerializeObject(pm),
+				string.Join("\r\n", TargetAdresses.Select((s) => s.Address)));
+		}
+
 		public Config(MailAddress sender, MailAddress[] target, string password, string smtpServerAddress)
 		{
 			SenderAddress = sender;

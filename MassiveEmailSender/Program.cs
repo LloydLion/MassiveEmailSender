@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,27 +17,35 @@ namespace MassiveEmailSender
 		public const int CountOfThreads = 4;
 
 
-		static void Main(string[] args)
+		static void Main()
 		{
-			Console.WriteLine("Massive Email Sender Utility");
-			Console.Write("Check setting before start program ");
-
-			for (int i = 0; i < 6; i++)
-			{
-				Thread.Sleep(500);
-				Console.Write('.');
-			}
-
-			Console.WriteLine();
-			Console.WriteLine();
-			Console.WriteLine("Press any key to start utility");
-			Console.ReadKey();
-
-			Console.WriteLine();
-			Console.WriteLine("Work started");
-
 			try
 			{
+				Console.WriteLine("Massive Email Sender Utility");
+
+				Console.Write("Are you want reset setting? [Yes/No] ");
+				string input = Console.ReadLine();
+				Console.WriteLine();
+
+				if (input == "Yes") ResetSettings();
+
+
+				Console.Write("Check setting before start program ");
+
+				for (int i = 0; i < 6; i++)
+				{
+					Thread.Sleep(500);
+					Console.Write('.');
+				}
+
+				Console.WriteLine();
+				Console.WriteLine();
+				Console.WriteLine("Press any key to start utility");
+				Console.ReadKey();
+
+				Console.WriteLine();
+				Console.WriteLine("Work started");
+
 				Console.Write("Reading config ... ");
 				Config config = Config.LoadConfigFromFile(Config.DefaultConfigFileName);
 				config.SetAddressesFromTxtFile(Config.DefaultEmailsTxtFileName);
@@ -81,6 +90,79 @@ namespace MassiveEmailSender
 			Console.WriteLine();
 			Console.WriteLine("Program work endded. Press any key to close");
 			Console.ReadKey();
+		}
+
+		private static void ResetSettings()
+		{
+			Console.Write("Reseting settings ... ");
+			File.WriteAllText(Config.DefaultConfigFileName, "");
+			File.WriteAllText(Config.DefaultEmailsTxtFileName, "");
+			File.WriteAllText(DefaultEmailContentFileName, "");
+			Console.WriteLine("OK!");
+
+			Console.WriteLine();
+			Console.WriteLine("Enter your email address");
+			var tmp1 = Console.ReadLine();
+			Console.WriteLine();
+			Console.WriteLine("Enter email password");
+			var tmp2 = Console.ReadLine();
+			Console.WriteLine();
+			Console.WriteLine("Enter email smtp server address");
+			var tmp3 = Console.ReadLine();
+			Console.WriteLine();
+
+			Console.Write("Writting to file ... ");
+			File.WriteAllText(Config.DefaultConfigFileName, 
+				new Config(new MailAddress(tmp1), new MailAddress[0], tmp2, tmp3).ExportConfig().json);
+			Console.WriteLine("OK!");
+
+			Process notepad = new Process()
+			{
+				StartInfo = new ProcessStartInfo()
+				{
+					FileName = "notepad.exe",
+					WorkingDirectory = Environment.CurrentDirectory
+				}
+			};
+
+			Console.WriteLine();
+			Console.WriteLine("Write all target emails to file throught line break");
+
+			Console.Write("Opening ");
+			for (int i = 0; i < 5; i++)
+			{
+				Thread.Sleep(500);
+				Console.Write('.');
+			}
+			Console.WriteLine(" Open!");
+
+			notepad.StartInfo.Arguments = Config.DefaultEmailsTxtFileName;
+
+			notepad.Start();
+			notepad.WaitForExit();
+
+			Console.WriteLine();
+			Console.WriteLine("Write message to html file");
+			Console.Write("Opening ");
+			for (int i = 0; i < 5; i++)
+			{
+				Thread.Sleep(500);
+				Console.Write('.');
+			}
+			Console.WriteLine(" Open!");
+
+			notepad.StartInfo.Arguments = DefaultEmailContentFileName;
+
+			notepad.Start();
+			notepad.WaitForExit();
+
+			Console.WriteLine();
+			Console.WriteLine("Configuration complite!");
+			Console.WriteLine("Press any key to continue");
+			Console.ReadLine();
+			Console.WriteLine();
+
+			
 		}
 	}
 }
