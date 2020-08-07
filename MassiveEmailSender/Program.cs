@@ -62,6 +62,7 @@ namespace MassiveEmailSender
 				};
 				Console.WriteLine(locale.GetString("OK!"));
 
+
 				Console.Write(locale.GetString("Creating client ... "));
 				MailSender sender = new MailSender(config.SenderAddress, config.SenderPassword,
 					config.SmtpServerAddress);
@@ -83,10 +84,7 @@ namespace MassiveEmailSender
 			}
 			catch(Exception ex)
 			{
-				Console.WriteLine("Unhandled Exception: ");
-				Console.WriteLine("\tMessage: " + ex.Message);
-				Console.WriteLine("\tStackTrace: " + ex.StackTrace);
-				Console.WriteLine("\tSource: " + ex.Source);
+				ShowExceptionInfo(ex);
 			}
 
 			Console.WriteLine();
@@ -165,6 +163,20 @@ namespace MassiveEmailSender
 			Console.WriteLine();
 
 			
+		}
+
+		private static void ShowExceptionInfo(Exception ex)
+		{
+			Console.WriteLine("Unhandled Exception: ");
+			Console.WriteLine("\tMessage: " + ex.Message);
+			Console.WriteLine("\tStackTrace: " + ex.StackTrace);
+			Console.WriteLine("\tSource: " + ex.Source);
+
+			if (ex.InnerException != null)
+			{
+				Console.WriteLine("\n\n\tInnerException: ");
+				ShowExceptionInfo(ex.InnerException);
+			}
 		}
 	}
 }

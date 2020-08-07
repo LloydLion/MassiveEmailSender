@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,8 +37,17 @@ namespace MassiveEmailSender
 
 		public void SetAddressesFromTxtFile(string path)
 		{
-			TargetAdresses = File.ReadAllText(path).Replace("\r\n", "\u1234")
-				.Split('\u1234').Select((s) => new MailAddress(s)).ToArray();
+			TargetAdresses = File.ReadAllText(path).Replace("\r\n", "\u1234").Split('\u1234').Select((s, i) => 
+			{
+				try
+				{
+					return new MailAddress(s);
+				}
+				catch (Exception ex)
+				{
+					throw new Exception($"Error on parsing emails file: on line:{i + 1}", ex);
+				}
+			}).ToArray();
 		}
 
 		public (string json, string txt) ExportConfig()
