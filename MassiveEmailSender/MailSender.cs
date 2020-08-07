@@ -29,6 +29,9 @@ namespace MassiveEmailSender
 		public void SendToAll(MailAddress[] addresses, MailMessage message)
 		{
 			message.To.Clear();
+			message.CC.Clear();
+			message.Bcc.Clear();
+
 			message.From = from;
 
 			foreach (var item in addresses) message.Bcc.Add(item);
