@@ -12,7 +12,7 @@ namespace MassiveEmailSender
 {
 	class Config
 	{
-		public const string DefaultConfigFileName = "emal_config.json";
+		public const string DefaultConfigFileName = "email_config.json";
 		public const string DefaultEmailsTxtFileName = "emails.txt";
 
 

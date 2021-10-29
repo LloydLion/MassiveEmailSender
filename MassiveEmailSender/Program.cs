@@ -80,6 +80,8 @@ namespace MassiveEmailSender
 					Console.Write('.');
 				}
 
+				if (task.IsFaulted) throw task.Exception;
+
 				Console.WriteLine(" " + locale.GetString("OK!"));
 			}
 			catch(Exception ex)
